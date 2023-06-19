@@ -86,7 +86,7 @@ resource "azurerm_application_gateway" "gateway" {
   }
 
   identity {
-    type = "UserAssigned"
+    type = "UserAssigned" // needed for key vault access
     identity_ids = [
       azurerm_user_assigned_identity.appgw.id
     ]

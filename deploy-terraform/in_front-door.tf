@@ -16,8 +16,10 @@ resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
   name                     = local.front_door_origin_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 
+  session_affinity_enabled = false
+
   health_probe {
-    interval_in_seconds = 240
+    interval_in_seconds = 30
     path                = "/test"
     protocol            = "Http"
     request_type        = "GET"

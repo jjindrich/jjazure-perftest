@@ -81,6 +81,10 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
 
   boot_diagnostics {
   }
+
+  depends_on = [ 
+    azurerm_lb_rule.rule1
+  ]
 }
 
 data "local_file" "cloudinit" {
@@ -105,7 +109,7 @@ resource "azurerm_virtual_machine_scale_set_extension" "haproxy_perftest" {
 SETTINGS
 }
 
-/*
+
 // single nic
 resource "azurerm_network_interface" "haproxy_nic" {
   name                = "${var.haproxy_name}-nic"
@@ -154,7 +158,7 @@ resource "azurerm_linux_virtual_machine" "haproxy_vm" {
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 }
-
+/*
 locals {
   encoded_script = base64encode(file("${path.module}/scripts/update-haproxy.sh"))
 }
