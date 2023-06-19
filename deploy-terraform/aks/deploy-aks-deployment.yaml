@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perftest
+  namespace: perftest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: perftest
+  template:
+    metadata:
+      labels:
+        app: perftest
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - nodepool1
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - name: perftest
+          image:  testingacr1432.azurecr.io/perftest:v2
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: '1'
+              memory: 1G
+            limits:
+              cpu: '1'
+              memory: 1G
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      topologySpreadConstraints:
+      - maxSkew: 1
+        nodeAffinityPolicy: Honor
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: perftest-service
+  namespace: perftest
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - targetPort: 80
+      name: port80
+      port: 80
+      protocol: TCP
+  selector:
+    app: perftest
