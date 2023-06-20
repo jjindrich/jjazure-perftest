@@ -161,6 +161,19 @@ variable "haproxy_lb_name" {
   default = "lb-haproxy"
 }
 
+variable "haproxy_lb_type" {
+  default = "Public"
+
+  validation {
+    condition     = contains(["Public", "Internal"], var.haproxy_lb_type)
+    error_message = "The LB type can be internal or public."
+  }
+}
+
+variable "aks_vm_size" {
+  default = "Standard_D2_v2"
+}
+
 variable "aks_perftest_ip" {
   default     = ""
   description = "Internal IP from AKS for perftest deployment"
@@ -178,4 +191,8 @@ variable "front_door_sku_name" {
     condition     = contains(["Standard_AzureFrontDoor", "Premium_AzureFrontDoor"], var.front_door_sku_name)
     error_message = "The SKU value must be Standard_AzureFrontDoor or Premium_AzureFrontDoor."
   }
+}
+
+variable "dns_db_zone" {
+  default = "perftest"
 }

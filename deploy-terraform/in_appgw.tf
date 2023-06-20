@@ -1,3 +1,7 @@
+locals {
+  perftest_health_probe_url = "/TestSimple"
+}
+
 # Generating a auto-renewing self signed certificate
 resource "azurerm_key_vault_certificate" "self_signed_certificate" {
   name         = "ingress-certificate"
@@ -129,7 +133,7 @@ resource "azurerm_application_gateway" "gateway" {
     name                = "probe-perftest"
     interval            = 60
     protocol            = "Http"
-    path                = "/test"
+    path                = local.perftest_health_probe_url
     timeout             = 30
     unhealthy_threshold = 5
     host                = "perftest.local"
@@ -145,6 +149,36 @@ resource "azurerm_application_gateway" "gateway" {
     probe_name            = "probe-perftest"
   }
 
+  // redirect http to https
+  frontend_port {
+    name = "port-80"
+    port = 80
+  }
+
+  http_listener {
+    name                           = "http-80-listener"
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = "port-80"
+    protocol                       = "Http"
+  }
+
+  request_routing_rule {
+    name                        = "route-80"
+    rule_type                   = "Basic"
+    http_listener_name          = "http-80-listener"
+    redirect_configuration_name = "redirect-to-https"
+    priority                    = 150
+  }
+
+  redirect_configuration {
+    name                 = "redirect-to-https"
+    target_listener_name = local.listener_name
+    redirect_type        = "Permanent"
+    include_path         = true
+    include_query_string = true
+  }
+
+  # HTTPS
   http_listener {
     name                           = local.listener_name
     frontend_ip_configuration_name = local.frontend_ip_configuration_name

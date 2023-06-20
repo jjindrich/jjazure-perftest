@@ -4,6 +4,10 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rsg.location
   sku                 = "Basic"
   admin_enabled       = false
+
+  provisioner "local-exec" {
+    command = "az acr build -t perftest:v2 -r ${var.acr_name} https://github.com/jjindrich/jjazure-perftest.git -f PerfTest\\Dockerfile --platform linux"
+  }
 }
 
 resource "azurerm_role_assignment" "role_for_acr" {
@@ -13,7 +17,7 @@ resource "azurerm_role_assignment" "role_for_acr" {
   skip_service_principal_aad_check = true
 }
 
-# ACR includes some default system scope maps
+# ACR default system scope maps
 data "azurerm_container_registry_scope_map" "pull" {
   name                    = "_repositories_pull"
   resource_group_name     = azurerm_resource_group.rsg.name

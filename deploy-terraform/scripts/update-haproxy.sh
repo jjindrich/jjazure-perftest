@@ -38,12 +38,18 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-listen http
-        bind 0.0.0.0:80
+backend aks
         mode tcp
-        option tcplog
         balance roundrobin
         server aks ${aks_lb_ip}:80 check
+
+frontend azure
+        bind :80
+        mode tcp
+        option tcplog
+        acl is_frontdoor hdr(X-Azure-FDID) -m str ${fdid}
+        acl is_appgw src ${appgw_subnet}
+        use_backend aks if is_frontdoor or is_appgw
 EOF
 
 systemctl restart haproxy

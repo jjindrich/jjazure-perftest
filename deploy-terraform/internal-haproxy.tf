@@ -82,8 +82,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   boot_diagnostics {
   }
 
-  depends_on = [ 
-    azurerm_lb_rule.rule1
+  depends_on = [
+    azurerm_lb_rule.haproxy
   ]
 }
 
@@ -103,14 +103,16 @@ resource "azurerm_virtual_machine_scale_set_extension" "haproxy_perftest" {
   settings = <<SETTINGS
     {
         "script": "${base64encode(templatefile("${path.module}/scripts/update-haproxy.sh", {
-  aks_lb_ip = "${var.aks_perftest_ip}"
+  aks_lb_ip = "${local.perftest_lb_ip}",
+  appgw_subnet = "${var.appgw_subnet_cidr}",
+  fdid = "${azurerm_cdn_frontdoor_profile.fd.resource_guid}",
 }))}"
     }
 SETTINGS
 }
 
-
-// single nic
+/*
+// single vm
 resource "azurerm_network_interface" "haproxy_nic" {
   name                = "${var.haproxy_name}-nic"
   location            = azurerm_resource_group.rsg.location
@@ -158,6 +160,13 @@ resource "azurerm_linux_virtual_machine" "haproxy_vm" {
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 }
+
+resource "azurerm_network_interface_backend_address_pool_association" "haproxy_lb" {
+  network_interface_id    = azurerm_network_interface.haproxy_nic.id
+  ip_configuration_name   = azurerm_network_interface.haproxy_nic.ip_configuration[0].name
+  backend_address_pool_id = azurerm_lb_backend_address_pool.haproxy_backend.id
+}
+
 /*
 locals {
   encoded_script = base64encode(file("${path.module}/scripts/update-haproxy.sh"))
@@ -180,6 +189,8 @@ SETTINGS
 
 // load balancer in front of HAProxy
 resource "azurerm_public_ip" "haproxy_lb1" {
+  count = var.haproxy_lb_type == "Public" ? 1 : 0
+
   name                = "${var.haproxy_lb_name}-pip"
   resource_group_name = azurerm_resource_group.rsg.name
   location            = azurerm_resource_group.rsg.location
@@ -192,26 +203,41 @@ resource "azurerm_lb" "haproxy" {
   location            = azurerm_resource_group.rsg.location
   resource_group_name = azurerm_resource_group.rsg.name
   sku                 = "Standard"
-  frontend_ip_configuration {
-    name                 = "ipconfig1"
-    public_ip_address_id = azurerm_public_ip.haproxy_lb1.id
+
+  dynamic "frontend_ip_configuration" {
+    for_each = var.haproxy_lb_type == "Public" ? [1] : []
+
+    content {
+      name                 = "ipconfig1"
+      public_ip_address_id = azurerm_public_ip.haproxy_lb1[0].id
+    }
+  }
+
+  dynamic "frontend_ip_configuration" {
+    for_each = var.haproxy_lb_type == "Internal" ? [1] : []
+
+    content {
+      name                          = "ipconfig1"
+      subnet_id                     = azurerm_subnet.app-subnet.id
+      private_ip_address_allocation = "Dynamic"
+    }
   }
 }
 
 resource "azurerm_lb_backend_address_pool" "haproxy_backend" {
-  name            = "haproxy-backend"
+  name            = "backend-haproxy"
   loadbalancer_id = azurerm_lb.haproxy.id
 }
 
 resource "azurerm_lb_probe" "haproxy_probe" {
-  name            = "tcp-probe"
+  name            = "tcp-probe-80"
   protocol        = "Tcp"
   port            = 80
   loadbalancer_id = azurerm_lb.haproxy.id
 }
 
-resource "azurerm_lb_rule" "rule1" {
-  name                           = "rule"
+resource "azurerm_lb_rule" "haproxy" {
+  name                           = "rule-haproxy"
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
@@ -219,10 +245,4 @@ resource "azurerm_lb_rule" "rule1" {
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.haproxy_backend.id]
   probe_id                       = azurerm_lb_probe.haproxy_probe.id
   loadbalancer_id                = azurerm_lb.haproxy.id
-}
-
-resource "azurerm_network_interface_backend_address_pool_association" "haproxy_lb" {
-  network_interface_id    = azurerm_network_interface.haproxy_nic.id
-  ip_configuration_name   = azurerm_network_interface.haproxy_nic.ip_configuration[0].name
-  backend_address_pool_id = azurerm_lb_backend_address_pool.haproxy_backend.id
 }

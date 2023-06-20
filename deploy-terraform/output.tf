@@ -3,10 +3,10 @@ output "private_key" {
   sensitive = true
 }
 
-output "haproxy_vm_id" {
-    value = azurerm_linux_virtual_machine.haproxy_vm.id
+output "rg_name" {
+  value = azurerm_resource_group.rsg.name
 }
 
-output "acr_name" {
-    value = var.acr_name
+output "aks_name" {
+    value = azurerm_kubernetes_cluster.k8s.name
 }

@@ -20,7 +20,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
 
   health_probe {
     interval_in_seconds = 30
-    path                = "/test"
+    path                = local.perftest_health_probe_url
     protocol            = "Http"
     request_type        = "GET"
   }
@@ -39,10 +39,10 @@ resource "azurerm_cdn_frontdoor_origin" "haproxy_lb" {
 
   certificate_name_check_enabled = false
 
-  host_name          = azurerm_public_ip.haproxy_lb1.ip_address
+  host_name          = azurerm_public_ip.haproxy_lb1[0].ip_address
   http_port          = 80
   https_port         = 443
-  origin_host_header = azurerm_public_ip.haproxy_lb1.ip_address
+  origin_host_header = azurerm_public_ip.haproxy_lb1[0].ip_address
   priority           = 1
   weight             = 1000
 }
