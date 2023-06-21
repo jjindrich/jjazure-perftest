@@ -1,4 +1,3 @@
-/*
 resource "azurerm_redis_cache" "contento" {
   name                = "${var.rg_name}-contento"
   location            = azurerm_resource_group.rsg.location
@@ -59,4 +58,3 @@ resource "azurerm_redis_cache" "crm" {
   redis_configuration {
   }
 }
-*/

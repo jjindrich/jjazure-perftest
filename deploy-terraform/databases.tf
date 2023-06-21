@@ -68,7 +68,7 @@ resource "azurerm_mysql_flexible_database" "perftest" {
      ]
   }
 }
-/*
+
 resource "azurerm_mysql_flexible_server" "contento" {
   name                   = "contento"
   location               = azurerm_resource_group.rsg.location
@@ -252,4 +252,3 @@ resource "azurerm_mysql_flexible_database" "voyo" {
      ]
   }
 }
-*/
