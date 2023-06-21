@@ -18,7 +18,7 @@ namespace PerfTest.Controllers
         }
 
         [HttpGet]
-        public async Task<ObjectResult> Get()
+        public ObjectResult Get()
         {
             var accessLog = new AccessLog
             {

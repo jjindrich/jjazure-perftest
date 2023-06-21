@@ -1,11 +1,6 @@
-variable "tags" {
-  description = "resource tags"
-  default     = {}
-}
-
 variable "rg_name" {
   description = "name of rg"
-  default     = "placeholder2"
+  default     = "perftest"
 }
 
 variable "rg_location" {
@@ -161,26 +156,12 @@ variable "haproxy_lb_name" {
   default = "lb-haproxy"
 }
 
-variable "haproxy_lb_type" {
-  default = "Public"
-
-  validation {
-    condition     = contains(["Public", "Internal"], var.haproxy_lb_type)
-    error_message = "The LB type can be internal or public."
-  }
-}
-
 variable "aks_vm_size" {
   default = "Standard_D2_v2"
 }
 
-variable "aks_perftest_ip" {
-  default     = ""
-  description = "Internal IP from AKS for perftest deployment"
-}
-
 variable "front_door_name" {
-  type = string
+  type    = string
   default = "fd"
 }
 
@@ -194,5 +175,69 @@ variable "front_door_sku_name" {
 }
 
 variable "dns_db_zone" {
-  default = "perftest"
+  default = "novaazure"
+}
+
+variable "mysql_voyo_allocated_storage" {
+  description = "MySQL voyo allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "mysql_voyo_administrator_password" {
+  description = "MySQL voyo administrator password"
+  type        = string
+  default     = ""
+}
+
+variable "mysql_onair_allocated_storage" {
+  description = "MySQL onair allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "mysql_onair_administrator_password" {
+  description = "MySQL onair administrator password"
+  type        = string
+  default     = ""
+}
+
+variable "mysql_remp_allocated_storage" {
+  description = "MySQL remp allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "mysql_remp_administrator_password" {
+  description = "MySQL remp administrator password"
+  type        = string
+  default     = ""
+}
+
+variable "mysql_contento_allocated_storage" {
+  description = "MySQL contento allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "mysql_contento_administrator_password" {
+  description = "MySQL contento administrator password"
+  type        = string
+  default     = ""
+}
+
+variable "linux_vm_sku" {
+  type = object({
+    publisher = string,
+    offer     = string,
+    sku       = string,
+    version   = string,
+  })
+
+  default = {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
 }

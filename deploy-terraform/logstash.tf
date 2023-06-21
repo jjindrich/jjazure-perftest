@@ -61,4 +61,8 @@ resource "azurerm_linux_virtual_machine" "logstash_vm" {
     username   = "azureuser"
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
+
+  depends_on = [
+    azurerm_network_interface_security_group_association.log_nic_nsg // fix for Operation 'startTenantUpdate' is not allowed on VM during destroy
+  ]
 }

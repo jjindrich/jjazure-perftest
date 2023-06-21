@@ -1,3 +1,7 @@
+locals {
+    image_tag = "perftest:v3"
+}
+
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
   resource_group_name = azurerm_resource_group.rsg.name
@@ -6,7 +10,7 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled       = false
 
   provisioner "local-exec" {
-    command = "az acr build -t perftest:v2 -r ${var.acr_name} https://github.com/jjindrich/jjazure-perftest.git -f PerfTest\\Dockerfile --platform linux"
+    command = "az acr build -t ${local.image_tag} -r ${var.acr_name} ${abspath(format("%s/../perftest", path.module))} -f ${abspath(format("%s/../perftest/DockerfileTf", path.module))} --platform linux"
   }
 }
 

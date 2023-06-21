@@ -14,6 +14,18 @@ resource "azurerm_network_security_group" "haproxy_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "InboundFromFrontDoor"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "AzureFrontDoor.Backend"
+    destination_address_prefix = "*"
+  }
 }
 
 //scaleset
@@ -52,10 +64,10 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
+    publisher = var.linux_vm_sku.publisher //"Canonical"
+    offer     = var.linux_vm_sku.offer     //"0001-com-ubuntu-server-jammy"
+    sku       = var.linux_vm_sku.sku       //"22_04-lts-gen2"
+    version   = var.linux_vm_sku.version   //"latest"
   }
 
   network_interface {
@@ -72,125 +84,39 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
       load_balancer_backend_address_pool_ids = [
         azurerm_lb_backend_address_pool.haproxy_backend.id
       ]
-
-      application_gateway_backend_address_pool_ids = [
-        one(azurerm_application_gateway.gateway.backend_address_pool[*].id)
-      ]
     }
   }
 
   boot_diagnostics {
   }
 
-  depends_on = [
-    azurerm_lb_rule.haproxy
-  ]
+  extension {
+    name                 = "ConfigureHAProxy"
+    publisher            = "Microsoft.Azure.Extensions"
+    type                 = "CustomScript"
+    type_handler_version = "2.0"
+
+    settings = <<SETTINGS
+    {
+        "script": "${base64encode(templatefile("${path.module}/scripts/update-haproxy.sh", {
+    aks_lb_ip = "${local.perftest_lb_ip}",
+    fdid = "${azurerm_cdn_frontdoor_profile.fd.resource_guid}",
+}))}"
+    }
+SETTINGS
+}
+
+depends_on = [
+  azurerm_lb_rule.haproxy
+]
 }
 
 data "local_file" "cloudinit" {
   filename = "${path.module}/scripts/cloudinit_haproxy.conf"
 }
 
-resource "azurerm_virtual_machine_scale_set_extension" "haproxy_perftest" {
-  count = var.aks_perftest_ip != "" ? 1 : 0
-
-  name                         = "ConfigureHAProxy"
-  virtual_machine_scale_set_id = azurerm_linux_virtual_machine_scale_set.haproxy.id
-  publisher                    = "Microsoft.Azure.Extensions"
-  type                         = "CustomScript"
-  type_handler_version         = "2.0"
-
-  settings = <<SETTINGS
-    {
-        "script": "${base64encode(templatefile("${path.module}/scripts/update-haproxy.sh", {
-  aks_lb_ip = "${local.perftest_lb_ip}",
-  appgw_subnet = "${var.appgw_subnet_cidr}",
-  fdid = "${azurerm_cdn_frontdoor_profile.fd.resource_guid}",
-}))}"
-    }
-SETTINGS
-}
-
-/*
-// single vm
-resource "azurerm_network_interface" "haproxy_nic" {
-  name                = "${var.haproxy_name}-nic"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
-
-  ip_configuration {
-    name                          = "nic_configuration"
-    subnet_id                     = azurerm_subnet.app-subnet.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-resource "azurerm_network_interface_security_group_association" "haproxy_nic_nsg" {
-  network_interface_id      = azurerm_network_interface.haproxy_nic.id
-  network_security_group_id = azurerm_network_security_group.haproxy_nsg.id
-}
-
-resource "azurerm_linux_virtual_machine" "haproxy_vm" {
-  name                  = var.haproxy_name
-  location              = azurerm_resource_group.rsg.location
-  resource_group_name   = azurerm_resource_group.rsg.name
-  network_interface_ids = [azurerm_network_interface.haproxy_nic.id]
-  size                  = "Standard_DS1_v2"
-
-  os_disk {
-    name                 = "haproxy-os-disk"
-    caching              = "ReadWrite"
-    storage_account_type = "Premium_LRS"
-    disk_size_gb         = "40"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
-  }
-
-  computer_name                   = "haproxy"
-  admin_username                  = "azureuser"
-  disable_password_authentication = true
-
-  admin_ssh_key {
-    username   = "azureuser"
-    public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
-  }
-}
-
-resource "azurerm_network_interface_backend_address_pool_association" "haproxy_lb" {
-  network_interface_id    = azurerm_network_interface.haproxy_nic.id
-  ip_configuration_name   = azurerm_network_interface.haproxy_nic.ip_configuration[0].name
-  backend_address_pool_id = azurerm_lb_backend_address_pool.haproxy_backend.id
-}
-
-/*
-locals {
-  encoded_script = base64encode(file("${path.module}/scripts/update-haproxy.sh"))
-}
-
-resource "azurerm_virtual_machine_extension" "haproxy_install" {
-  name                 = "haproxy_setup"
-  virtual_machine_id   = azurerm_linux_virtual_machine.haproxy_vm.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-
-  settings = <<SETTINGS
- {
-  "script": "${local.encoded_script}"
- }
-SETTINGS
-}
-*/
-
 // load balancer in front of HAProxy
 resource "azurerm_public_ip" "haproxy_lb1" {
-  count = var.haproxy_lb_type == "Public" ? 1 : 0
-
   name                = "${var.haproxy_lb_name}-pip"
   resource_group_name = azurerm_resource_group.rsg.name
   location            = azurerm_resource_group.rsg.location
@@ -204,23 +130,9 @@ resource "azurerm_lb" "haproxy" {
   resource_group_name = azurerm_resource_group.rsg.name
   sku                 = "Standard"
 
-  dynamic "frontend_ip_configuration" {
-    for_each = var.haproxy_lb_type == "Public" ? [1] : []
-
-    content {
-      name                 = "ipconfig1"
-      public_ip_address_id = azurerm_public_ip.haproxy_lb1[0].id
-    }
-  }
-
-  dynamic "frontend_ip_configuration" {
-    for_each = var.haproxy_lb_type == "Internal" ? [1] : []
-
-    content {
-      name                          = "ipconfig1"
-      subnet_id                     = azurerm_subnet.app-subnet.id
-      private_ip_address_allocation = "Dynamic"
-    }
+  frontend_ip_configuration {
+    name                 = "ipconfig1"
+    public_ip_address_id = azurerm_public_ip.haproxy_lb1.id
   }
 }
 

@@ -1,17 +1,14 @@
-locals {
-  namespace_name = "perftest"
-}
 resource "kubernetes_namespace" "perftest" {
   metadata {
-    name = local.namespace_name
+    name = "perftest"
   }
 }
 
-// needed by virtual nodes
+// needed by virtual nodes isntead of managed identity
 resource "kubernetes_secret" "regcred" {
   metadata {
     name      = "regcred"
-    namespace = local.namespace_name
+    namespace = kubernetes_namespace.perftest.metadata.0.name
   }
 
   type = "kubernetes.io/dockerconfigjson"
@@ -29,7 +26,6 @@ resource "kubernetes_secret" "regcred" {
     })
   }
 }
-
 
 resource "kubernetes_deployment" "perftest" {
   metadata {
@@ -75,7 +71,7 @@ resource "kubernetes_deployment" "perftest" {
 
         container {
           name              = "perftest"
-          image             = "${azurerm_container_registry.acr.login_server}/perftest:v3"
+          image             = "${azurerm_container_registry.acr.login_server}/${local.image_tag}"
           image_pull_policy = "Always"
           port {
             container_port = 80
@@ -83,7 +79,7 @@ resource "kubernetes_deployment" "perftest" {
 
           env {
             name  = "ConnectionStrings__MySqlDatabase"
-            value = "server=${azurerm_mysql_flexible_server.contento.fqdn}; database=${azurerm_mysql_flexible_database.contento.name}; user=${azurerm_mysql_flexible_server.contento.administrator_login}; password=${random_password.mysql_root_password.result}"
+            value = "server=${azurerm_mysql_flexible_server.perftest.fqdn}; database=${azurerm_mysql_flexible_database.perftest.name}; user=${azurerm_mysql_flexible_server.perftest.administrator_login}; password=${random_password.mysql_root_password.result}"
           }
 
           resources {
@@ -104,8 +100,7 @@ resource "kubernetes_deployment" "perftest" {
         }
 
         topology_spread_constraint {
-          max_skew = 1
-          //node_affinity_policy = "Honor"
+          max_skew           = 1
           topology_key       = "kubernetes.io/hostname"
           when_unsatisfiable = "ScheduleAnyway"
         }
@@ -131,7 +126,7 @@ resource "kubernetes_service" "perftest" {
     }
 
     selector = {
-      app = "perftest" //kubernetes_deployment.hello_kubernetes.spec[0].template[0].metadata[0].labels.app
+      app = kubernetes_deployment.perftest.spec[0].template[0].metadata[0].labels.app
     }
 
     type = "LoadBalancer"

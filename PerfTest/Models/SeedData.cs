@@ -1,3 +1,4 @@
+/*
 using Microsoft.EntityFrameworkCore;
 
 namespace PerfTest;
@@ -31,3 +32,4 @@ public static class SeedData
         }
     }
 }
+*/

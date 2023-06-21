@@ -1,7 +1,7 @@
 locals {
   perftest_health_probe_url = "/TestSimple"
 }
-
+/*
 # Generating a auto-renewing self signed certificate
 resource "azurerm_key_vault_certificate" "self_signed_certificate" {
   name         = "ingress-certificate"
@@ -61,11 +61,11 @@ resource "azurerm_key_vault_certificate" "self_signed_certificate" {
 
 # App GW Instance
 locals {
-  backend_address_pool_name      = "${var.appgw_name}-beap"
+  backend_address_pool_name      = "haproxy-vmss"
   frontend_port_name             = "${var.appgw_name}-feport"
-  frontend_ip_configuration_name = "${var.appgw_name}-feip"
+  frontend_ip_configuration_name = "frontend-public"
   http_setting_name              = "${var.appgw_name}-be-htst"
-  listener_name                  = "${var.appgw_name}-httplstn"
+  listener_name                  = "https-443-listener"
   request_routing_rule_name      = "${var.appgw_name}-rqrt"
   redirect_configuration_name    = "${var.appgw_name}-rdrcfg"
 }
@@ -196,3 +196,4 @@ resource "azurerm_application_gateway" "gateway" {
     priority                   = 100
   }
 }
+*/

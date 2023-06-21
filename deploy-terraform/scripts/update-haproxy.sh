@@ -48,8 +48,7 @@ frontend azure
         mode tcp
         option tcplog
         acl is_frontdoor hdr(X-Azure-FDID) -m str ${fdid}
-        acl is_appgw src ${appgw_subnet}
-        use_backend aks if is_frontdoor or is_appgw
+        use_backend aks if is_frontdoor
 EOF
 
 systemctl restart haproxy

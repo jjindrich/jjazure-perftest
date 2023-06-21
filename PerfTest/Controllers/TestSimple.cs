@@ -15,7 +15,7 @@ namespace PerfTest.Controllers
         }
 
         [HttpGet]
-        public async Task<ObjectResult> Get()
+        public ObjectResult Get()
         {
             return Ok("{\"status\":\"ok\"}");
         }

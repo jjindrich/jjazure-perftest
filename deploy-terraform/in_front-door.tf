@@ -1,11 +1,3 @@
-locals {
-  front_door_profile_name      = "perftest"
-  front_door_endpoint_name     = "haproxyendpoint"
-  front_door_origin_group_name = "haproxygrp"
-  front_door_origin_name       = "haproxyorigin"
-  front_door_route_name        = "haproxyroute"
-}
-
 resource "azurerm_cdn_frontdoor_profile" "fd" {
   name                = var.front_door_name
   resource_group_name = azurerm_resource_group.rsg.name
@@ -13,7 +5,7 @@ resource "azurerm_cdn_frontdoor_profile" "fd" {
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
-  name                     = local.front_door_origin_name
+  name                     = "haproxyorigin"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 
   session_affinity_enabled = false
@@ -33,22 +25,22 @@ resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "haproxy_lb" {
-  name                          = local.front_door_origin_name
+  name                          = "haproxyorigin"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.haproxy.id
   enabled                       = true
 
   certificate_name_check_enabled = false
 
-  host_name          = azurerm_public_ip.haproxy_lb1[0].ip_address
+  host_name          = azurerm_public_ip.haproxy_lb1.ip_address
   http_port          = 80
   https_port         = 443
-  origin_host_header = azurerm_public_ip.haproxy_lb1[0].ip_address
+  origin_host_header = azurerm_public_ip.haproxy_lb1.ip_address
   priority           = 1
   weight             = 1000
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "haproxy" {
-  name                     = local.front_door_endpoint_name
+  name                     = "haproxyendpoint"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 }
 
@@ -67,11 +59,12 @@ resource "azurerm_cdn_frontdoor_route" "haproxy" {
   patterns_to_match      = ["/*"]
   supported_protocols    = ["Http", "Https"]
 
-  //cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.contoso.id]
+  //cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.app.id]
   link_to_default_domain = true
-
+/*
   cache {
     compression_enabled       = true
     content_types_to_compress = ["text/html", "text/javascript", "text/xml"]
   }
+  */
 }
