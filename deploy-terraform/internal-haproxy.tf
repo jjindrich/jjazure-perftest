@@ -2,7 +2,7 @@ resource "azurerm_network_security_group" "haproxy_nsg" {
   name                = "${var.haproxy_name}-nsg"
   location            = azurerm_resource_group.rsg.location
   resource_group_name = azurerm_resource_group.rsg.name
-
+/*
   security_rule {
     name                       = "ALL"
     priority                   = 1001
@@ -14,7 +14,7 @@ resource "azurerm_network_security_group" "haproxy_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
+*/
   security_rule {
     name                       = "InboundFromFrontDoor"
     priority                   = 1000
@@ -50,7 +50,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   }
 
   // https://learn.microsoft.com/en-us/azure/virtual-machines/linux/using-cloud-init#deploying-a-cloud-init-enabled-virtual-machine
-  custom_data = base64encode(data.local_file.cloudinit.content)
+  custom_data = filebase64("${path.module}/scripts/cloudinit_haproxy.conf")
 
   admin_ssh_key {
     username   = "azureuser"
@@ -64,10 +64,10 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   }
 
   source_image_reference {
-    publisher = var.linux_vm_sku.publisher //"Canonical"
-    offer     = var.linux_vm_sku.offer     //"0001-com-ubuntu-server-jammy"
-    sku       = var.linux_vm_sku.sku       //"22_04-lts-gen2"
-    version   = var.linux_vm_sku.version   //"latest"
+    publisher = var.linux_vm_sku.publisher
+    offer     = var.linux_vm_sku.offer
+    sku       = var.linux_vm_sku.sku
+    version   = var.linux_vm_sku.version
   }
 
   network_interface {
@@ -109,10 +109,6 @@ SETTINGS
 depends_on = [
   azurerm_lb_rule.haproxy
 ]
-}
-
-data "local_file" "cloudinit" {
-  filename = "${path.module}/scripts/cloudinit_haproxy.conf"
 }
 
 // load balancer in front of HAProxy

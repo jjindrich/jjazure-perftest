@@ -1,10 +1,56 @@
+locals {
+    image_tag = "perftest:v3"
+}
+
+provider "kubernetes" {
+  host                   = azurerm_kubernetes_cluster.k8s.kube_config.0.host
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.k8s.kube_config.0.client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.k8s.kube_config.0.client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.k8s.kube_config.0.cluster_ca_certificate)
+}
+
+resource "null_resource" "build_perftest_image" {
+  provisioner "local-exec" {
+    command = "az acr build -t ${local.image_tag} -r ${var.acr_name} ${abspath(format("%s/../perftest", path.module))} -f ${abspath(format("%s/../perftest/DockerfileTf", path.module))} --platform linux"
+  }
+
+  depends_on = [
+    azurerm_container_registry.acr
+  ]
+}
+
 resource "kubernetes_namespace" "perftest" {
   metadata {
     name = "perftest"
   }
+
+  depends_on = [
+    null_resource.build_perftest_image
+  ]
 }
 
-// needed by virtual nodes isntead of managed identity
+# ACR default system scope maps
+data "azurerm_container_registry_scope_map" "pull" {
+  name                    = "_repositories_pull"
+  resource_group_name     = azurerm_resource_group.rsg.name
+  container_registry_name = azurerm_container_registry.acr.name
+}
+
+resource "azurerm_container_registry_token" "aks" {
+  name                    = "aks-pull"
+  container_registry_name = azurerm_container_registry.acr.name
+  resource_group_name     = azurerm_resource_group.rsg.name
+  scope_map_id            = data.azurerm_container_registry_scope_map.pull.id
+}
+
+resource "azurerm_container_registry_token_password" "aks" {
+  container_registry_token_id = azurerm_container_registry_token.aks.id
+
+  password1 {
+  }
+}
+
+# Pull secret needed for virtual nodes as we can't use managed identity on those
 resource "kubernetes_secret" "regcred" {
   metadata {
     name      = "regcred"

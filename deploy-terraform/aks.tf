@@ -17,7 +17,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   linux_profile {
-    admin_username = "ubuntu"
+    admin_username = "azureuser"
 
     ssh_key {
       key_data = tls_private_key.ssh_key_generic_vm.public_key_openssh

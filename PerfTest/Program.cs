@@ -10,7 +10,6 @@ var connectionString = builder.Configuration.GetConnectionString("MySqlDatabase"
 builder.Services.AddDbContextPool<DataContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -20,14 +19,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
-/*
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    SeedData.Initialize(services);
-}
-*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

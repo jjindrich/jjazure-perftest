@@ -9,18 +9,4 @@ public class DataContext : DbContext
     }
 
     public DbSet<AccessLog> AccessLog { get; set; }
-
-    /*
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-          base.OnModelCreating(modelBuilder);
-
-          modelBuilder.Entity<AccessLog>(entity =>
-          {
-            entity.HasKey(e => e.ID);
-            entity.Property(e => e.Name).IsRequired();
-          });
-        }
-      }
-    */
 }

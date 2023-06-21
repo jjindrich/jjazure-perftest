@@ -1,3 +1,7 @@
+locals {
+  perftest_health_probe_url = "/TestSimple"
+}
+
 resource "azurerm_cdn_frontdoor_profile" "fd" {
   name                = var.front_door_name
   resource_group_name = azurerm_resource_group.rsg.name
@@ -5,7 +9,7 @@ resource "azurerm_cdn_frontdoor_profile" "fd" {
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
-  name                     = "haproxyorigin"
+  name                     = "haproxy"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 
   session_affinity_enabled = false
@@ -25,7 +29,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "haproxy" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "haproxy_lb" {
-  name                          = "haproxyorigin"
+  name                          = "haproxy-lb"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.haproxy.id
   enabled                       = true
 
@@ -59,12 +63,6 @@ resource "azurerm_cdn_frontdoor_route" "haproxy" {
   patterns_to_match      = ["/*"]
   supported_protocols    = ["Http", "Https"]
 
-  //cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.app.id]
+  //cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.custom.id]
   link_to_default_domain = true
-/*
-  cache {
-    compression_enabled       = true
-    content_types_to_compress = ["text/html", "text/javascript", "text/xml"]
-  }
-  */
 }

@@ -47,10 +47,10 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
+    publisher = var.linux_vm_sku.publisher
+    offer     = var.linux_vm_sku.offer
+    sku       = var.linux_vm_sku.sku
+    version   = var.linux_vm_sku.version
   }
 
   computer_name                   = "elastic"
