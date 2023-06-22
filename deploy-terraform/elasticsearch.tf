@@ -1,7 +1,7 @@
 resource "azurerm_network_security_group" "elastic_nsg" {
   name                = "${var.elastic_name}-nsg"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
 
   security_rule {
     name                       = "ALL"
@@ -18,8 +18,8 @@ resource "azurerm_network_security_group" "elastic_nsg" {
 
 resource "azurerm_network_interface" "elastic_nic" {
   name                = "${var.elastic_name}-nic"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
 
   ip_configuration {
     name                          = "nic_configuration"
@@ -35,8 +35,8 @@ resource "azurerm_network_interface_security_group_association" "elastic_nic_nsg
 
 resource "azurerm_linux_virtual_machine" "elastic_vm" {
   name                  = var.elastic_name
-  location              = azurerm_resource_group.rsg.location
-  resource_group_name   = azurerm_resource_group.rsg.name
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.rsg-data-svc.name
   network_interface_ids = [azurerm_network_interface.elastic_nic.id]
   size                  = "Standard_DS1_v2"
 
@@ -69,8 +69,8 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
 
 resource "azurerm_managed_disk" "elastic_data" {
   name                 = "${var.elastic_name}-data"
-  location             = azurerm_resource_group.rsg.location
-  resource_group_name  = azurerm_resource_group.rsg.name
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.rsg-data-svc.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 40

@@ -1,7 +1,7 @@
 resource "azurerm_network_security_group" "haproxy_nsg" {
   name                = "${var.haproxy_name}-nsg"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-network.name
 /*
   security_rule {
     name                       = "ALL"
@@ -31,8 +31,8 @@ resource "azurerm_network_security_group" "haproxy_nsg" {
 //scaleset
 resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   name                = "${var.haproxy_name}-vmss"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-network.name
 
   sku                             = "Standard_DS1_v2"
   instances                       = 2
@@ -114,16 +114,16 @@ depends_on = [
 // load balancer in front of HAProxy
 resource "azurerm_public_ip" "haproxy_lb1" {
   name                = "${var.haproxy_lb_name}-pip"
-  resource_group_name = azurerm_resource_group.rsg.name
-  location            = azurerm_resource_group.rsg.location
+  resource_group_name = azurerm_resource_group.rsg-network.name
+  location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 resource "azurerm_lb" "haproxy" {
   name                = var.haproxy_lb_name
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-network.name
   sku                 = "Standard"
 
   frontend_ip_configuration {

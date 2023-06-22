@@ -40,7 +40,7 @@ spec:
       
       containers:
         - name: sample
-          image: novaperftest.azurecr.io/novatest:latest
+          image: perftest.azurecr.io/test:latest
           imagePullPolicy: Always
           ports:
             - name: web

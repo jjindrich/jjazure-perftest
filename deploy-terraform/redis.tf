@@ -1,7 +1,7 @@
 resource "azurerm_redis_cache" "contento" {
-  name                = "${var.rg_name}-contento"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  name                = "perftest-contento"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -17,10 +17,10 @@ resource "azurerm_redis_cache" "contento" {
   }
 }
 
-resource "azurerm_redis_cache" "voyoapi" {
-  name                = "${var.rg_name}-voyoapi"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+resource "azurerm_redis_cache" "cacheapi" {
+  name                = "perftest-api"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -31,10 +31,10 @@ resource "azurerm_redis_cache" "voyoapi" {
   }
 }
 
-resource "azurerm_redis_cache" "sessions" {
-  name                = "${var.rg_name}-sessions"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+resource "azurerm_redis_cache" "cachesessions" {
+  name                = "perftest-sessions"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -45,10 +45,10 @@ resource "azurerm_redis_cache" "sessions" {
   }
 }
 
-resource "azurerm_redis_cache" "crm" {
-  name                = "${var.rg_name}-crm"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+resource "azurerm_redis_cache" "cachecrm" {
+  name                = "perftest-crm"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"

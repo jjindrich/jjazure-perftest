@@ -1,16 +1,42 @@
-variable "rg_name" {
-  description = "name of rg"
-  default     = "perftest"
-}
-
-variable "rg_location" {
+variable "location" {
   description = "Location"
   default     = "northeurope"
 }
 
+variable "deploy_bastion" {
+  type    = bool
+  default = false
+}
+
+variable "rg-network_name" {
+  description = "name of rg"
+  default     = "perftest-network-rg"
+}
+variable "rg-monitor_name" {
+  description = "name of rg"
+  default     = "perftest-monitor-rg"
+}
+variable "rg-web_name" {
+  description = "name of rg"
+  default     = "perftest-web-rg"
+}
+variable "rg-app_name" {
+  description = "name of rg"
+  default     = "perftest-app-rg"
+}
+variable "rg-data-db_name" {
+  description = "name of rg"
+  default     = "perftest-data-db-rg"
+}
+variable "rg-data-svc_name" {
+  description = "name of rg"
+  default     = "perftest-data-svc-rg"
+}
+
+
 variable "vnet_name" {
   description = "Virtual Network Name"
-  default     = "vnet"
+  default     = "perftest-vnet"
 }
 
 variable "vnet_address_space" {
@@ -18,33 +44,38 @@ variable "vnet_address_space" {
   default     = "10.0.0.0/16"
 }
 
+variable "web_subnet" {
+  description = "name of web Subnet"
+  default     = "web-snet"
+}
+
 variable "app_subnet" {
   description = "name of app Subnet"
-  default     = "app-subnet"
+  default     = "app-snet"
 }
 
 variable "db_subnet" {
   description = "name of db Subnet"
-  default     = "db-subnet"
+  default     = "db-snet"
 }
 
 variable "elas_subnet" {
   description = "name of elasticache Subnet"
-  default     = "elas-subnet"
+  default     = "elk-snet"
 }
-
-variable "appgw_subnet" {
-  default = "appgw-subnet"
-}
-
 variable "virtual_subnet" {
   description = "name of virtual Subnet (aks virtual node)"
-  default     = "virtual-subnet"
+  default     = "svc-snet"
+}
+
+variable "web_subnet_cidr" {
+  description = "cidr for web Subnet"
+  default     = "10.0.1.0/24"
 }
 
 variable "app_subnet_cidr" {
   description = "cidr for app Subnet"
-  default     = "10.0.1.0/24"
+  default     = "10.0.2.0/24"
 }
 
 variable "db_subnet_cidr" {
@@ -60,11 +91,6 @@ variable "elas_subnet_cidr" {
 variable "virtual_subnet_cidr" {
   description = "cidr for db Subnet"
   default     = "10.0.10.0/24"
-}
-
-variable "appgw_subnet_cidr" {
-  description = "subnet for application gateway instances"
-  default     = "10.0.5.0/24"
 }
 
 variable "bastion_subnet_cidr" {
@@ -99,7 +125,7 @@ variable "haproxy_name" {
 
 variable "storage_acc_name" {
   description = "Storage account name"
-  default     = "fdstorageaccount1432"
+  default     = "perftestst"
 }
 
 variable "storage_share_name" {
@@ -109,7 +135,7 @@ variable "storage_share_name" {
 
 variable "k8s_name" {
   description = "Kubernetes cluster name"
-  default     = "testing-k8s"
+  default     = "perftest-aks"
 }
 
 variable "k8s_nodecount" {
@@ -119,7 +145,7 @@ variable "k8s_nodecount" {
 
 variable "key_vault_name" {
   description = "Key Vault for certificates"
-  default     = "kv-testing-1432"
+  default     = "perftest-kv"
 }
 
 variable "ingress_hostname" {
@@ -127,29 +153,9 @@ variable "ingress_hostname" {
   default     = "test.com"
 }
 
-variable "appgw_name" {
-  description = "Instance name of application gateway"
-  default     = "testing-appgw"
-}
-
-variable "appgw_scale_min" {
-  description = "minimum number of instances we need (only when autoscaling is enabled)"
-  default     = 0
-}
-
-variable "appgw_scale_max" {
-  description = "if set, what maximum number of instances we allow (zero means no scaling)"
-  default     = 0
-}
-
 variable "acr_name" {
   description = "Name of the Container Registry"
-  default     = "testingacr1432"
-}
-
-variable "deploy_bastion" {
-  type    = bool
-  default = false
+  default     = "perftestacr12345"
 }
 
 variable "haproxy_lb_name" {
@@ -162,7 +168,7 @@ variable "aks_vm_size" {
 
 variable "front_door_name" {
   type    = string
-  default = "fd"
+  default = "perftest-fd"
 }
 
 variable "front_door_sku_name" {
@@ -175,17 +181,17 @@ variable "front_door_sku_name" {
 }
 
 variable "dns_db_zone" {
-  default = "novaazure"
+  default = "perfazure"
 }
 
-variable "mysql_voyo_allocated_storage" {
-  description = "MySQL voyo allocated storage"
+variable "mysql_allocated_storage" {
+  description = "MySQL allocated storage"
   type        = number
   default     = 20
 }
 
-variable "mysql_voyo_administrator_password" {
-  description = "MySQL voyo administrator password"
+variable "mysql_administrator_password" {
+  description = "MySQL administrator password"
   type        = string
   default     = ""
 }

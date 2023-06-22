@@ -1,7 +1,7 @@
 resource "azurerm_network_security_group" "grafana_nsg" {
   name                = "${var.grafana_name}-nsg"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-monitor.name
 
   security_rule {
     name                       = "ALL"
@@ -66,8 +66,8 @@ resource "azurerm_network_security_group" "grafana_nsg" {
 
 resource "azurerm_network_interface" "grafana_nic" {
   name                = "${var.grafana_name}-nic"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-monitor.name
 
   ip_configuration {
     name                          = "nic_configuration"
@@ -83,8 +83,8 @@ resource "azurerm_network_interface_security_group_association" "grafana_nic_nsg
 
 resource "azurerm_linux_virtual_machine" "grafana_vm" {
   name                  = var.grafana_name
-  location              = azurerm_resource_group.rsg.location
-  resource_group_name   = azurerm_resource_group.rsg.name
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.rsg-monitor.name
   network_interface_ids = [azurerm_network_interface.grafana_nic.id]
   size                  = "Standard_DS1_v2"
 

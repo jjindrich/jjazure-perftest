@@ -32,14 +32,14 @@ resource "kubernetes_namespace" "perftest" {
 # ACR default system scope maps
 data "azurerm_container_registry_scope_map" "pull" {
   name                    = "_repositories_pull"
-  resource_group_name     = azurerm_resource_group.rsg.name
+  resource_group_name     = azurerm_resource_group.rsg-app.name
   container_registry_name = azurerm_container_registry.acr.name
 }
 
 resource "azurerm_container_registry_token" "aks" {
   name                    = "aks-pull"
   container_registry_name = azurerm_container_registry.acr.name
-  resource_group_name     = azurerm_resource_group.rsg.name
+  resource_group_name     = azurerm_resource_group.rsg-app.name
   scope_map_id            = data.azurerm_container_registry_scope_map.pull.id
 }
 
@@ -47,6 +47,54 @@ resource "azurerm_container_registry_token_password" "aks" {
   container_registry_token_id = azurerm_container_registry_token.aks.id
 
   password1 {
+  }
+}
+
+
+# database
+resource "azurerm_mysql_flexible_server" "perftest" {
+  name                   = "perftest"
+  location               = var.location
+  resource_group_name    = azurerm_resource_group.rsg-data-db.name
+  administrator_login    = "azureadmin"
+  administrator_password = random_password.mysql_root_password.result
+  delegated_subnet_id    = azurerm_subnet.db-subnet.id
+  private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
+  sku_name               = "B_Standard_B1s"
+  version                = "8.0.21"
+
+  storage {
+    iops    = 360
+    size_gb = 20
+  }
+
+  maintenance_window {
+    day_of_week  = 0
+    start_hour   = 0
+    start_minute = 0
+  }
+
+  depends_on = [azurerm_private_dns_zone_virtual_network_link.mysql_vnet]
+
+  lifecycle {
+    ignore_changes = [ 
+        zone
+     ]
+  }
+}
+
+resource "azurerm_mysql_flexible_database" "perftest" {
+  name                = "perftest"
+  resource_group_name = azurerm_resource_group.rsg-data-db.name
+  server_name         = azurerm_mysql_flexible_server.perftest.name
+  charset             = "utf8mb4"
+  collation           = "utf8mb4_unicode_ci"
+
+  lifecycle {
+    ignore_changes = [ 
+        charset,
+        collation,
+     ]
   }
 }
 

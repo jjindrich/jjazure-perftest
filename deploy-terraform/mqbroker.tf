@@ -1,7 +1,7 @@
 resource "azurerm_network_security_group" "rabbitmq_nsg" {
   name                = "${var.rabbitmq_name}-nsg"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
 
   security_rule {
     name                       = "ALL"
@@ -18,8 +18,8 @@ resource "azurerm_network_security_group" "rabbitmq_nsg" {
 
 resource "azurerm_network_interface" "rabbitmq_nic" {
   name                = "${var.rabbitmq_name}-nic"
-  location            = azurerm_resource_group.rsg.location
-  resource_group_name = azurerm_resource_group.rsg.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rsg-data-svc.name
 
   ip_configuration {
     name                          = "nic_configuration"
@@ -35,8 +35,8 @@ resource "azurerm_network_interface_security_group_association" "rabbitmq_nic_ns
 
 resource "azurerm_linux_virtual_machine" "rabbitmq_vm" {
   name                  = var.rabbitmq_name
-  location              = azurerm_resource_group.rsg.location
-  resource_group_name   = azurerm_resource_group.rsg.name
+  location              = var.location
+  resource_group_name   = azurerm_resource_group.rsg-data-svc.name
   network_interface_ids = [azurerm_network_interface.rabbitmq_nic.id]
   size                  = "Standard_DS1_v2"
 
