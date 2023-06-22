@@ -1,4 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using PerfTest;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
+
+var connectionString = builder.Configuration.GetConnectionString("MySqlDatabase");
+
+builder.Services.AddDbContextPool<DataContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 // Add services to the container.
 
@@ -20,5 +30,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/", () => "Hello world, perftest!");
 
 app.Run();

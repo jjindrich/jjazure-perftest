@@ -14,6 +14,54 @@ resource "azurerm_network_security_group" "grafana_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "in3000"
+    priority                   = 1100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3000"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "in5044"
+    priority                   = 1110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5044"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "in5601"
+    priority                   = 1120
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5601"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "in8086"
+    priority                   = 1130
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "886"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_network_interface" "grafana_nic" {
@@ -47,10 +95,10 @@ resource "azurerm_linux_virtual_machine" "grafana_vm" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
+    publisher = var.linux_vm_sku.publisher
+    offer     = var.linux_vm_sku.offer
+    sku       = var.linux_vm_sku.sku
+    version   = var.linux_vm_sku.version
   }
 
   computer_name                   = "grafana"
@@ -61,4 +109,8 @@ resource "azurerm_linux_virtual_machine" "grafana_vm" {
     username   = "azureuser"
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
+
+  depends_on = [
+    azurerm_network_interface_security_group_association.grafana_nic_nsg // fix for Operation 'startTenantUpdate' is not allowed on VM during destroy
+  ]
 }

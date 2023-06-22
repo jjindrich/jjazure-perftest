@@ -1,9 +1,3 @@
-resource "azurerm_resource_group" "rsg" {
-  name     = var.rg_name
-  location = var.rg_location
-  tags     = var.tags
-}
-
 resource "azurerm_virtual_network" "vnet" {
   address_space       = [var.vnet_address_space]
   location            = azurerm_resource_group.rsg.location
@@ -53,5 +47,4 @@ resource "azurerm_subnet" "virtual-subnet" {
       actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
     }
   }
-
 }

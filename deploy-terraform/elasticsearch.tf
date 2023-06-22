@@ -47,10 +47,10 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
+    publisher = var.linux_vm_sku.publisher
+    offer     = var.linux_vm_sku.offer
+    sku       = var.linux_vm_sku.sku
+    version   = var.linux_vm_sku.version
   }
 
   computer_name                   = "elastic"
@@ -61,6 +61,10 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
     username   = "azureuser"
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
+
+  depends_on = [
+    azurerm_network_interface_security_group_association.elastic_nic_nsg // fix for Operation 'startTenantUpdate' is not allowed on VM during destroy
+  ]
 }
 
 resource "azurerm_managed_disk" "elastic_data" {
