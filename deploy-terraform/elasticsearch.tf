@@ -38,10 +38,6 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
     username   = var.vm_username
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
-
-  depends_on = [
-    azurerm_network_interface_security_group_association.elastic_nic_nsg // fix for Operation 'startTenantUpdate' is not allowed on VM during destroy
-  ]
 }
 
 resource "azurerm_managed_disk" "elastic_data" {
