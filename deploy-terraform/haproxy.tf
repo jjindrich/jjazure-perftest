@@ -1,20 +1,8 @@
 resource "azurerm_network_security_group" "haproxy_nsg" {
   name                = "${var.haproxy_name}-nsg"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-network.name
-/*
-  security_rule {
-    name                       = "ALL"
-    priority                   = 1001
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-*/
+  resource_group_name = azurerm_resource_group.rsg-web.name
+
   security_rule {
     name                       = "InboundFromFrontDoor"
     priority                   = 1000
@@ -32,11 +20,11 @@ resource "azurerm_network_security_group" "haproxy_nsg" {
 resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   name                = "${var.haproxy_name}-vmss"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-network.name
+  resource_group_name = azurerm_resource_group.rsg-web.name
 
   sku                             = "Standard_DS1_v2"
   instances                       = 2
-  admin_username                  = "azureuser"
+  admin_username                  = var.vm_username
   disable_password_authentication = true
 
   upgrade_mode    = "Rolling"
@@ -53,7 +41,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   custom_data = filebase64("${path.module}/scripts/cloudinit_haproxy.conf")
 
   admin_ssh_key {
-    username   = "azureuser"
+    username   = var.vm_username
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 
@@ -79,7 +67,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
     ip_configuration {
       name      = "ipconfig1"
       primary   = true
-      subnet_id = azurerm_subnet.app-subnet.id
+      subnet_id = azurerm_subnet.web-subnet.id
 
       load_balancer_backend_address_pool_ids = [
         azurerm_lb_backend_address_pool.haproxy_backend.id
@@ -114,7 +102,7 @@ depends_on = [
 // load balancer in front of HAProxy
 resource "azurerm_public_ip" "haproxy_lb1" {
   name                = "${var.haproxy_lb_name}-pip"
-  resource_group_name = azurerm_resource_group.rsg-network.name
+  resource_group_name = azurerm_resource_group.rsg-web.name
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -123,7 +111,7 @@ resource "azurerm_public_ip" "haproxy_lb1" {
 resource "azurerm_lb" "haproxy" {
   name                = var.haproxy_lb_name
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-network.name
+  resource_group_name = azurerm_resource_group.rsg-web.name
   sku                 = "Standard"
 
   frontend_ip_configuration {

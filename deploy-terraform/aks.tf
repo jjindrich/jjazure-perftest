@@ -1,12 +1,12 @@
 resource "azurerm_kubernetes_cluster" "k8s" {
-  name                = var.k8s_name
+  name                = var.aks_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-app.name
   dns_prefix          = "dns"
 
   default_node_pool {
     name           = "agentpool"
-    node_count     = var.k8s_nodecount
+    node_count     = var.aks_nodecount
     vm_size        = var.aks_vm_size
     vnet_subnet_id = azurerm_subnet.app-subnet.id
     type           = "VirtualMachineScaleSets"
@@ -17,7 +17,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   linux_profile {
-    admin_username = "azureuser"
+    admin_username = var.vm_username
 
     ssh_key {
       key_data = tls_private_key.ssh_key_generic_vm.public_key_openssh

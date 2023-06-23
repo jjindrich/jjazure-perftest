@@ -44,7 +44,7 @@ resource "azurerm_cdn_frontdoor_origin" "haproxy_lb" {
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "haproxy" {
-  name                     = "haproxyendpoint"
+  name                     = var.front_door_endpoint_name
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 }
 

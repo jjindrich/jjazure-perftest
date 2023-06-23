@@ -1,69 +1,3 @@
-resource "azurerm_network_security_group" "grafana_nsg" {
-  name                = "${var.grafana_name}-nsg"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-monitor.name
-
-  security_rule {
-    name                       = "ALL"
-    priority                   = 1001
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "in3000"
-    priority                   = 1100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "3000"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "in5044"
-    priority                   = 1110
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "5044"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "in5601"
-    priority                   = 1120
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "5601"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "in8086"
-    priority                   = 1130
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "886"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-}
-
 resource "azurerm_network_interface" "grafana_nic" {
   name                = "${var.grafana_name}-nic"
   location            = var.location
@@ -76,11 +10,6 @@ resource "azurerm_network_interface" "grafana_nic" {
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "grafana_nic_nsg" {
-  network_interface_id      = azurerm_network_interface.grafana_nic.id
-  network_security_group_id = azurerm_network_security_group.grafana_nsg.id
-}
-
 resource "azurerm_linux_virtual_machine" "grafana_vm" {
   name                  = var.grafana_name
   location              = var.location
@@ -89,7 +18,7 @@ resource "azurerm_linux_virtual_machine" "grafana_vm" {
   size                  = "Standard_DS1_v2"
 
   os_disk {
-    name                 = "grafana-os-disk"
+    name                 = "${var.grafana_name}-os-disk"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -102,11 +31,11 @@ resource "azurerm_linux_virtual_machine" "grafana_vm" {
   }
 
   computer_name                   = "grafana"
-  admin_username                  = "azureuser"
+  admin_username                  = var.vm_username
   disable_password_authentication = true
 
   admin_ssh_key {
-    username   = "azureuser"
+    username   = var.vm_username
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 

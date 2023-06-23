@@ -53,7 +53,7 @@ resource "azurerm_container_registry_token_password" "aks" {
 
 # database
 resource "azurerm_mysql_flexible_server" "perftest" {
-  name                   = "perftest"
+  name                   = "${var.mysql_name_prefix}-perftest"
   location               = var.location
   resource_group_name    = azurerm_resource_group.rsg-data-db.name
   administrator_login    = "azureadmin"

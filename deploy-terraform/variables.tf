@@ -1,42 +1,52 @@
 variable "location" {
   description = "Location"
-  default     = "northeurope"
+  default     = "swedencentral"
 }
 
 variable "deploy_bastion" {
   type    = bool
   default = false
 }
+variable "bastion_name" {
+  description = "name of bastion"
+  default     = "prft-bastion"
+}
 
 variable "rg-network_name" {
   description = "name of rg"
-  default     = "perftest-network-rg"
+  default     = "prft-network-rg"
 }
 variable "rg-monitor_name" {
   description = "name of rg"
-  default     = "perftest-monitor-rg"
+  default     = "prft-monitor-rg"
 }
 variable "rg-web_name" {
   description = "name of rg"
-  default     = "perftest-web-rg"
+  default     = "prft-web-rg"
 }
 variable "rg-app_name" {
   description = "name of rg"
-  default     = "perftest-app-rg"
+  default     = "prft-app-rg"
 }
-variable "rg-data-db_name" {
+variable "rg-data_name" {
   description = "name of rg"
-  default     = "perftest-data-db-rg"
+  default     = "prft-data-rg"
 }
-variable "rg-data-svc_name" {
+variable "rg-svc_name" {
   description = "name of rg"
-  default     = "perftest-data-svc-rg"
+  default     = "prft-svc-rg"
 }
 
+// --------------------------------------------
+// NETWORK
+variable "key_vault_name" {
+  description = "Key Vault for certificates"
+  default     = "prft-kv12345"
+}
 
 variable "vnet_name" {
   description = "Virtual Network Name"
-  default     = "perftest-vnet"
+  default     = "prft-vnet"
 }
 
 variable "vnet_address_space" {
@@ -65,7 +75,7 @@ variable "elas_subnet" {
 }
 variable "virtual_subnet" {
   description = "name of virtual Subnet (aks virtual node)"
-  default     = "svc-snet"
+  default     = "virtual-snet"
 }
 
 variable "web_subnet_cidr" {
@@ -98,77 +108,24 @@ variable "bastion_subnet_cidr" {
   default     = "10.0.6.0/24"
 }
 
-variable "rabbitmq_name" {
-  description = "VM name for rabbitmq"
-  default     = "rabbitmq-vm"
-}
-
-variable "log_name" {
-  description = "VM name for logstash"
-  default     = "logstash-vm"
-}
-
-variable "grafana_name" {
-  description = "VM name for grafana"
-  default     = "grafana-vm"
-}
-
-variable "elastic_name" {
-  description = "VM name for elasticsearch"
-  default     = "elastic-vm"
-}
-
-variable "haproxy_name" {
-  description = "VM name for internal haproxy"
-  default     = "haproxy-vm"
-}
-
-variable "storage_acc_name" {
-  description = "Storage account name"
-  default     = "perftestst"
-}
-
-variable "storage_share_name" {
-  description = "Azure files share name"
-  default     = "storage-share"
-}
-
-variable "k8s_name" {
-  description = "Kubernetes cluster name"
-  default     = "perftest-aks"
-}
-
-variable "k8s_nodecount" {
-  description = "Kubernetes number of nodes"
-  default     = "1"
-}
-
-variable "key_vault_name" {
-  description = "Key Vault for certificates"
-  default     = "perftest-kv"
+// --------------------------------------------
+// WEB
+variable "haproxy_lb_name" {
+  default = "prft-haproxy-lb"
 }
 
 variable "ingress_hostname" {
   description = "DNS name for ingress (self-signed certificate)"
   default     = "test.com"
 }
-
-variable "acr_name" {
-  description = "Name of the Container Registry"
-  default     = "perftestacr12345"
-}
-
-variable "haproxy_lb_name" {
-  default = "lb-haproxy"
-}
-
-variable "aks_vm_size" {
-  default = "Standard_D2_v2"
-}
-
 variable "front_door_name" {
   type    = string
-  default = "perftest-fd"
+  default = "prft-fd"
+}
+
+variable "front_door_endpoint_name" {
+  type    = string
+  default = "prftfd"
 }
 
 variable "front_door_sku_name" {
@@ -180,8 +137,94 @@ variable "front_door_sku_name" {
   }
 }
 
+// --------------------------------------------
+// APP
+variable "vm_username" {
+  description = "VM username"
+  default     = "azureuser"
+}
+
+variable "rabbitmq_name" {
+  description = "VM name for rabbitmq"
+  default     = "prft-rabbitmq-vm"
+}
+
+variable "log_name" {
+  description = "VM name for logstash"
+  default     = "prft-logstash-vm"
+}
+
+variable "grafana_name" {
+  description = "VM name for grafana"
+  default     = "prft-grafana-vm"
+}
+
+variable "elastic_name" {
+  description = "VM name for elasticsearch"
+  default     = "prft-elastic-vm"
+}
+
+variable "haproxy_name" {
+  description = "VM name for internal haproxy"
+  default     = "prft-haproxy-vm"
+}
+
+variable "linux_vm_sku" {
+  type = object({
+    publisher = string,
+    offer     = string,
+    sku       = string,
+    version   = string,
+  })
+
+  default = {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+}
+
+
+variable "storage_acc_name" {
+  description = "Storage account name"
+  default     = "prftst12345"
+}
+
+variable "storage_share_name" {
+  description = "Azure files share name"
+  default     = "storage-share"
+}
+
+variable "aks_name" {
+  description = "Kubernetes cluster name"
+  default     = "prft-aks"
+}
+
+variable "aks_vm_size" {
+  default = "Standard_D2_v2"
+}
+
+variable "aks_nodecount" {
+  description = "Kubernetes number of nodes"
+  default     = "1"
+}
+
+variable "acr_name" {
+  description = "Name of the Container Registry"
+  default     = "prftacr12345"
+}
+
+// --------------------------------------------
+// DB + SVC
 variable "dns_db_zone" {
-  default = "perfazure"
+  default = "db.private"
+}
+
+variable "mysql_name_prefix" {
+  description = "MySQL prefix in name"
+  type        = string
+  default     = "prft"
 }
 
 variable "mysql_allocated_storage" {
@@ -232,18 +275,8 @@ variable "mysql_contento_administrator_password" {
   default     = ""
 }
 
-variable "linux_vm_sku" {
-  type = object({
-    publisher = string,
-    offer     = string,
-    sku       = string,
-    version   = string,
-  })
-
-  default = {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts-gen2"
-    version   = "latest"
-  }
+variable "redis_name_prefix" {
+  description = "Redis prefix in name"
+  type        = string
+  default     = "prft"
 }

@@ -19,11 +19,11 @@ resource "azurerm_resource_group" "rsg-app" {
 }
 
 resource "azurerm_resource_group" "rsg-data-db" {
-  name     = var.rg-data-db_name
+  name     = var.rg-data_name
   location = var.location
 }
 
-resource "azurerm_resource_group" "rsg-data-svc" {
-  name     = var.rg-data-svc_name
+resource "azurerm_resource_group" "rsg-svc" {
+  name     = var.rg-svc_name
   location = var.location
 }

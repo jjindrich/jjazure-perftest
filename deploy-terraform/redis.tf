@@ -1,7 +1,7 @@
 resource "azurerm_redis_cache" "contento" {
-  name                = "perftest-contento"
+  name                = "${var.redis_name_prefix}-contento-redis"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-data-svc.name
+  resource_group_name = azurerm_resource_group.rsg-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -18,9 +18,9 @@ resource "azurerm_redis_cache" "contento" {
 }
 
 resource "azurerm_redis_cache" "cacheapi" {
-  name                = "perftest-api"
+  name                = "${var.redis_name_prefix}-api-redis"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-data-svc.name
+  resource_group_name = azurerm_resource_group.rsg-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -32,9 +32,9 @@ resource "azurerm_redis_cache" "cacheapi" {
 }
 
 resource "azurerm_redis_cache" "cachesessions" {
-  name                = "perftest-sessions"
+  name                = "${var.redis_name_prefix}-sessions-redis"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-data-svc.name
+  resource_group_name = azurerm_resource_group.rsg-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"
@@ -46,9 +46,9 @@ resource "azurerm_redis_cache" "cachesessions" {
 }
 
 resource "azurerm_redis_cache" "cachecrm" {
-  name                = "perftest-crm"
+  name                = "${var.redis_name_prefix}-crm-redis"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-data-svc.name
+  resource_group_name = azurerm_resource_group.rsg-svc.name
   capacity            = 1
   family              = "C"
   sku_name            = "Standard"

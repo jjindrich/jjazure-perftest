@@ -24,7 +24,7 @@ resource "random_password" "mysql_root_password" {
 }
 
 resource "azurerm_mysql_flexible_server" "contento" {
-  name                   = "perftest-contento"
+  name                   = "${var.mysql_name_prefix}-contento-mysql"
   location               = var.location
   resource_group_name    = azurerm_resource_group.rsg-data-db.name
   administrator_login    = "azureadmin"
@@ -70,7 +70,7 @@ resource "azurerm_mysql_flexible_database" "contento" {
 }
 
 resource "azurerm_mysql_flexible_server" "remp" {
-  name                   = "perftest-remp"
+  name                   = "${var.mysql_name_prefix}-remp-mysql"
   location               = var.location
   resource_group_name    = azurerm_resource_group.rsg-data-db.name
   administrator_login    = "azureadmin"
@@ -116,7 +116,7 @@ resource "azurerm_mysql_flexible_database" "remp" {
 }
 
 resource "azurerm_mysql_flexible_server" "onair" {
-  name                   = "perftest-onair"
+  name                   = "${var.mysql_name_prefix}-onair-mysql"
   location               = var.location
   resource_group_name    = azurerm_resource_group.rsg-data-db.name
   administrator_login    = "azureadmin"
@@ -162,7 +162,7 @@ resource "azurerm_mysql_flexible_database" "onair" {
 }
 
 resource "azurerm_mysql_flexible_server" "dbserver" {
-  name                   = "perftest-dbserver"
+  name                   = "${var.mysql_name_prefix}-db-mysql"
   location               = var.location
   resource_group_name    = azurerm_resource_group.rsg-data-db.name
   administrator_login    = "azureadmin"

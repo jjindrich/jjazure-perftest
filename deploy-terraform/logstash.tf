@@ -1,21 +1,3 @@
-resource "azurerm_network_security_group" "log_nsg" {
-  name                = "${var.log_name}-nsg"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rsg-monitor.name
-
-  security_rule {
-    name                       = "ALL"
-    priority                   = 1001
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-}
-
 resource "azurerm_network_interface" "log_nic" {
   name                = "${var.log_name}-nic"
   location            = var.location
@@ -28,11 +10,6 @@ resource "azurerm_network_interface" "log_nic" {
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "log_nic_nsg" {
-  network_interface_id      = azurerm_network_interface.log_nic.id
-  network_security_group_id = azurerm_network_security_group.log_nsg.id
-}
-
 resource "azurerm_linux_virtual_machine" "logstash_vm" {
   name                  = var.log_name
   location              = var.location
@@ -41,7 +18,7 @@ resource "azurerm_linux_virtual_machine" "logstash_vm" {
   size                  = "Standard_DS1_v2"
 
   os_disk {
-    name                 = "logstash-os-disk"
+    name                 = "${var.log_name}-os-disk"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -54,11 +31,11 @@ resource "azurerm_linux_virtual_machine" "logstash_vm" {
   }
 
   computer_name                   = "logstash"
-  admin_username                  = "azureuser"
+  admin_username                  = var.vm_username
   disable_password_authentication = true
 
   admin_ssh_key {
-    username   = "azureuser"
+    username   = var.vm_username
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 
