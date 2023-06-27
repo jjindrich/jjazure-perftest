@@ -52,7 +52,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "k8s-npwin" {
+resource "azurerm_kubernetes_cluster_node_pool" "k8s-pool2" {
   name                  = "pool2"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.k8s.id
   vm_size               = var.aks_pool2_vm_size
