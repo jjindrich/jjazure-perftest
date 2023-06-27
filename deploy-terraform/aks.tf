@@ -3,6 +3,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-app.name
   dns_prefix          = "dns"
+  kubernetes_version  = "1.26.0"
 
   default_node_pool {
     name                = "agentpool"
