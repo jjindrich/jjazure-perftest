@@ -5,19 +5,27 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   dns_prefix          = "dns"
 
   default_node_pool {
-    name           = "agentpool"
-    node_count     = var.aks_nodecount
-    vm_size        = var.aks_vm_size
-    vnet_subnet_id = azurerm_subnet.app-subnet.id
-    type           = "VirtualMachineScaleSets"
+    name                = "agentpool"
+    node_count          = var.aks_nodecount
+    min_count           = var.aks_node_min_size
+    max_count           = var.aks_node_max_size
+    enable_auto_scaling = true
+    vm_size             = var.aks_vm_size
+    vnet_subnet_id      = azurerm_subnet.app-subnet.id
+    type                = "VirtualMachineScaleSets"
   }
 
   identity {
     type = "SystemAssigned"
   }
 
+  azure_active_directory_role_based_access_control {
+    managed            = true
+    azure_rbac_enabled = true
+  }
+
   linux_profile {
-    admin_username = var.vm_username
+    admin_username = var.admin_username
 
     ssh_key {
       key_data = tls_private_key.ssh_key_generic_vm.public_key_openssh
@@ -35,6 +43,18 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   aci_connector_linux {
     subnet_name = azurerm_subnet.virtual-subnet.name
   }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "k8s-npwin" {
+  name                  = "pool2"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.k8s.id
+  vm_size               = var.aks_pool2_vm_size
+  enable_auto_scaling   = true
+  node_count            = var.aks_pool2_nodecount
+  min_count             = var.aks_pool2_node_min_size
+  max_count             = var.aks_pool2_node_max_size
+  vnet_subnet_id        = azurerm_subnet.app-subnet.id
+  depends_on            = [azurerm_kubernetes_cluster.k8s]
 }
 
 resource "azurerm_role_assignment" "role_for_aci" {

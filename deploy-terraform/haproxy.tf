@@ -22,9 +22,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-web.name
 
-  sku                             = "Standard_DS1_v2"
-  instances                       = 2
-  admin_username                  = var.vm_username
+  sku                             = var.haproxy_vm_size
+  instances                       = var.haproxy_instances_count
+  admin_username                  = var.admin_username
   disable_password_authentication = true
 
   upgrade_mode    = "Rolling"
@@ -41,7 +41,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   custom_data = filebase64("${path.module}/scripts/cloudinit_haproxy.conf")
 
   admin_ssh_key {
-    username   = var.vm_username
+    username   = var.admin_username
     public_key = tls_private_key.ssh_key_generic_vm.public_key_openssh
   }
 
@@ -98,6 +98,8 @@ depends_on = [
   azurerm_lb_rule.haproxy
 ]
 }
+
+// TODO: add autoscaling azurerm_monitor_autoscale_setting - use var.haproxy_instances_min_count a var.haproxy_instances_max_count
 
 // load balancer in front of HAProxy
 resource "azurerm_public_ip" "haproxy_lb1" {

@@ -114,6 +114,22 @@ variable "haproxy_lb_name" {
   default = "prft-haproxy-lb"
 }
 
+variable "haproxy_vm_size" {
+  default = "Standard_DS1_v2"
+}
+
+variable "haproxy_instances_count" {
+  default = "1"
+}
+
+variable "haproxy_instances_min_count" {
+  default = "1"
+}
+
+variable "haproxy_instances_max_count" {
+  default = "3"
+}
+
 variable "ingress_hostname" {
   description = "DNS name for ingress (self-signed certificate)"
   default     = "test.com"
@@ -139,7 +155,7 @@ variable "front_door_sku_name" {
 
 // --------------------------------------------
 // APP
-variable "vm_username" {
+variable "admin_username" {
   description = "VM username"
   default     = "azureuser"
 }
@@ -162,6 +178,21 @@ variable "grafana_name" {
 variable "elastic_name" {
   description = "VM name for elasticsearch"
   default     = "prft-elastic-vm"
+}
+
+variable "elastic_sku_size" {
+  description = "VM name for elasticsearch"
+  default     = "Standard_D2s_v3"
+}
+
+variable "elastic_data_storage_account_type" {
+  description = "Storage type data disk for elasticsearch"
+  default     = "Standard_LRS"
+}
+
+variable "elastic_data_disk_size" {
+  description = "Storage size data disk for elasticsearch"
+  default     = "10"
 }
 
 variable "haproxy_name" {
@@ -210,6 +241,35 @@ variable "aks_nodecount" {
   default     = "1"
 }
 
+variable "aks_node_min_size" {
+  description = "Kubernetes min number of nodes"
+  default     = "1"
+}
+
+variable "aks_node_max_size" {
+  description = "Kubernetes max number of nodes"
+  default     = "3"
+}
+
+variable "aks_pool2_vm_size" {
+  default = "Standard_D2_v2"
+}
+
+variable "aks_pool2_nodecount" {
+  description = "Kubernetes number of nodes"
+  default     = "1"
+}
+
+variable "aks_pool2_node_min_size" {
+  description = "Kubernetes min number of nodes"
+  default     = "1"
+}
+
+variable "aks_pool2_node_max_size" {
+  description = "Kubernetes max number of nodes"
+  default     = "3"
+}
+
 variable "acr_name" {
   description = "Name of the Container Registry"
   default     = "prftacr12345"
@@ -227,10 +287,22 @@ variable "mysql_name_prefix" {
   default     = "prft"
 }
 
+variable "mysql_sku_name" {
+  description = "MySQL sku name"
+  type        = string
+  default     = "B_Standard_B1s"
+}
+
 variable "mysql_allocated_storage" {
   description = "MySQL allocated storage"
   type        = number
   default     = 20
+}
+
+variable "mysql_iops_storage" {
+  description = "MySQL iops storage"
+  type        = number
+  default     = 360
 }
 
 variable "mysql_administrator_password" {
@@ -239,10 +311,22 @@ variable "mysql_administrator_password" {
   default     = ""
 }
 
+variable "mysql_onair_sku_name" {
+  description = "MySQL onair sku name"
+  type        = string
+  default     = "B_Standard_B1s"
+}
+
 variable "mysql_onair_allocated_storage" {
   description = "MySQL onair allocated storage"
   type        = number
   default     = 20
+}
+
+variable "mysql_onair_iops_storage" {
+  description = "MySQL onair iops storage"
+  type        = number
+  default     = 360
 }
 
 variable "mysql_onair_administrator_password" {
@@ -251,10 +335,22 @@ variable "mysql_onair_administrator_password" {
   default     = ""
 }
 
+variable "mysql_remp_sku_name" {
+  description = "MySQL remp sku name"
+  type        = string
+  default     = "B_Standard_B1s"
+}
+
 variable "mysql_remp_allocated_storage" {
   description = "MySQL remp allocated storage"
   type        = number
   default     = 20
+}
+
+variable "mysql_remp_iops_storage" {
+  description = "MySQL remp iops storage"
+  type        = number
+  default     = 360
 }
 
 variable "mysql_remp_administrator_password" {
@@ -263,10 +359,22 @@ variable "mysql_remp_administrator_password" {
   default     = ""
 }
 
+variable "mysql_contento_sku_name" {
+  description = "MySQL contento sku name"
+  type        = string
+  default     = "B_Standard_B1s"
+}
+
 variable "mysql_contento_allocated_storage" {
   description = "MySQL contento allocated storage"
   type        = number
   default     = 20
+}
+
+variable "mysql_contento_iops_storage" {
+  description = "MySQL contento iops storage"
+  type        = number
+  default     = 390
 }
 
 variable "mysql_contento_administrator_password" {
@@ -279,4 +387,76 @@ variable "redis_name_prefix" {
   description = "Redis prefix in name"
   type        = string
   default     = "prft"
+}
+
+variable "redis_contento_capacity" {
+  description = "Redis contento capacity name"
+  type        = string
+  default     = "1"
+}
+
+variable "redis_contento_family" {
+  description = "Redis contento family name"
+  type        = string
+  default     = "C"
+}
+
+variable "redis_contento_sku_name" {
+  description = "Redis contento sku name"
+  type        = string
+  default     = "Standard"
+}
+
+variable "redis_api_capacity" {
+  description = "Redis api capacity name"
+  type        = string
+  default     = "1"
+}
+
+variable "redis_api_family" {
+  description = "Redis api family name"
+  type        = string
+  default     = "C"
+}
+
+variable "redis_api_sku_name" {
+  description = "Redis api sku name"
+  type        = string
+  default     = "Standard"
+}
+
+variable "redis_sessions_capacity" {
+  description = "Redis sessions capacity name"
+  type        = string
+  default     = "1"
+}
+
+variable "redis_sessions_family" {
+  description = "Redis sessions family name"
+  type        = string
+  default     = "C"
+}
+
+variable "redis_sessions_sku_name" {
+  description = "Redis sessions sku name"
+  type        = string
+  default     = "Standard"
+}
+
+variable "redis_crm_capacity" {
+  description = "Redis crm capacity name"
+  type        = string
+  default     = "1"
+}
+
+variable "redis_crm_family" {
+  description = "Redis crm family name"
+  type        = string
+  default     = "C"
+}
+
+variable "redis_crm_sku_name" {
+  description = "Redis crm sku name"
+  type        = string
+  default     = "Standard"
 }
