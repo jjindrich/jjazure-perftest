@@ -43,6 +43,12 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   aci_connector_linux {
     subnet_name = azurerm_subnet.virtual-subnet.name
   }
+
+  lifecycle {
+    ignore_changes = [
+        default_node_pool.0.node_count
+        ]
+  }
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "k8s-npwin" {

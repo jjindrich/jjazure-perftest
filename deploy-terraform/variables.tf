@@ -1,9 +1,9 @@
 variable "location" {
   description = "Location"
-  default     = "swedencentral"
+  default     = "northeurope"
 }
 
-variable "deploy_bastion" {
+variable "bastion_deploy" {
   type    = bool
   default = false
 }

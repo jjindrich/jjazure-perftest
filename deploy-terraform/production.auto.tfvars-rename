@@ -45,6 +45,6 @@ redis_crm_capacity = 4
 redis_crm_family = "C"
 redis_crm_sku_name = "Standard"
 
-elastic_sku_size = "Standard_E2d_v5"
-elastic_data_storage_account_type = "PremiumV2_LRS"
+elastic_sku_size = "Standard_E2ds_v5"
+elastic_data_storage_account_type = "Premium_LRS"
 elastic_data_disk_size = 40
