@@ -14,6 +14,7 @@ Resources structured into following resource groups
 Instructions for deployment
 - Install AZ CLI 
 - Install Terraform
+- Install kubectl
 
 ## Deploy
 Deployment use az command to build container in Azure ACR.
