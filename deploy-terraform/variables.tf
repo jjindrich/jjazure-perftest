@@ -109,13 +109,31 @@ variable "bastion_subnet_cidr" {
 }
 
 // --------------------------------------------
+// Availability Zones
+variable "vm_avzone" {
+  default     = "2"
+}
+variable "vmss_avzones" {
+  default     = ["2"]
+}
+variable "aks_avzones" {
+  default     = ["2"]
+}
+variable "db_avzone" {
+  default     = "2"
+}
+variable "redis_avzones" {
+  default     = ["2"]
+}
+
+// --------------------------------------------
 // WEB
 variable "haproxy_lb_name" {
   default = "prft-haproxy-lb"
 }
 
 variable "haproxy_vm_size" {
-  default = "Standard_DS1_v2"
+  default = "Standard_F4s_v2"
 }
 
 variable "haproxy_instances_count" {

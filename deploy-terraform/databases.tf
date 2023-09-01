@@ -33,6 +33,7 @@ resource "azurerm_mysql_flexible_server" "contento" {
   private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
   sku_name               = var.mysql_contento_sku_name
   version                = "8.0.21"
+  zone                   = var.db_avzone
 
   storage {
     iops    = var.mysql_contento_iops_storage
@@ -79,6 +80,7 @@ resource "azurerm_mysql_flexible_server" "remp" {
   private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
   sku_name               = var.mysql_remp_sku_name
   version                = "8.0.21"
+  zone                   = var.db_avzone
 
   storage {
     iops    = var.mysql_remp_iops_storage
@@ -125,6 +127,7 @@ resource "azurerm_mysql_flexible_server" "onair" {
   private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
   sku_name               = var.mysql_onair_sku_name
   version                = "8.0.21"
+  zone                   = var.db_avzone
 
   storage {
     iops    = var.mysql_onair_iops_storage
@@ -171,7 +174,8 @@ resource "azurerm_mysql_flexible_server" "dbserver" {
   private_dns_zone_id    = azurerm_private_dns_zone.mysql.id
   sku_name               = var.mysql_sku_name
   version                = "8.0.21"
-
+  zone                   = var.db_avzone
+  
   storage {
     iops    = var.mysql_iops_storage
     size_gb = var.mysql_allocated_storage

@@ -2,7 +2,7 @@ resource "azurerm_network_interface" "log_nic" {
   name                = "${var.log_name}-nic"
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-monitor.name
-
+  //enable_accelerated_networking = true
   ip_configuration {
     name                          = "nic_configuration"
     subnet_id                     = azurerm_subnet.app-subnet.id
@@ -16,6 +16,7 @@ resource "azurerm_linux_virtual_machine" "logstash_vm" {
   resource_group_name   = azurerm_resource_group.rsg-monitor.name
   network_interface_ids = [azurerm_network_interface.log_nic.id]
   size                  = "Standard_B2ms"
+  zone                  = var.vm_avzone
 
   os_disk {
     name                 = "${var.log_name}-os-disk"

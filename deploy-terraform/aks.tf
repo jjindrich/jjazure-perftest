@@ -3,7 +3,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-app.name
   dns_prefix          = "dns"
-  kubernetes_version  = "1.26.0"
+  kubernetes_version  = "1.26"
 
   default_node_pool {
     name                = "agentpool"
@@ -14,6 +14,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     vm_size             = var.aks_vm_size
     vnet_subnet_id      = azurerm_subnet.app-subnet.id
     type                = "VirtualMachineScaleSets"
+    zones               = var.aks_avzones
   }
 
   identity {
@@ -61,6 +62,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "k8s-pool2" {
   min_count             = var.aks_pool2_node_min_size
   max_count             = var.aks_pool2_node_max_size
   vnet_subnet_id        = azurerm_subnet.app-subnet.id
+  zones                 = var.aks_avzones
   depends_on            = [azurerm_kubernetes_cluster.k8s]
 }
 

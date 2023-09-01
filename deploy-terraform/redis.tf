@@ -7,7 +7,8 @@ resource "azurerm_redis_cache" "contento" {
   sku_name            = var.redis_contento_sku_name
   enable_non_ssl_port = false
   minimum_tls_version = "1.2"
-
+  zones               = var.redis_avzones
+  
   redis_configuration {
   }
 
@@ -26,6 +27,7 @@ resource "azurerm_redis_cache" "cacheapi" {
   sku_name            = var.redis_api_sku_name
   enable_non_ssl_port = false
   minimum_tls_version = "1.2"
+  zones               = var.redis_avzones
 
   redis_configuration {
   }
@@ -40,6 +42,7 @@ resource "azurerm_redis_cache" "cachesessions" {
   sku_name            = var.redis_sessions_sku_name
   enable_non_ssl_port = false
   minimum_tls_version = "1.2"
+  zones               = var.redis_avzones
 
   redis_configuration {
   }
@@ -54,7 +57,8 @@ resource "azurerm_redis_cache" "cachecrm" {
   sku_name            = var.redis_crm_sku_name
   enable_non_ssl_port = false
   minimum_tls_version = "1.2"
-
+  zones               = var.redis_avzones
+  
   redis_configuration {
   }
 }

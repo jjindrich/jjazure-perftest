@@ -2,7 +2,7 @@ resource "azurerm_network_interface" "rabbitmq_nic" {
   name                = "${var.rabbitmq_name}-nic"
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-svc.name
-
+  enable_accelerated_networking = true
   ip_configuration {
     name                          = "nic_configuration"
     subnet_id                     = azurerm_subnet.app-subnet.id
@@ -16,7 +16,8 @@ resource "azurerm_linux_virtual_machine" "rabbitmq_vm" {
   resource_group_name   = azurerm_resource_group.rsg-svc.name
   network_interface_ids = [azurerm_network_interface.rabbitmq_nic.id]
   size                  = "Standard_D2d_v5"
-
+  zone                  = var.vm_avzone
+  
   os_disk {
     name                 = "${var.rabbitmq_name}-os-disk"
     caching              = "ReadWrite"

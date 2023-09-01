@@ -27,6 +27,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   admin_username                  = var.admin_username
   disable_password_authentication = true
 
+  zones               = var.vmss_avzones  
   upgrade_mode    = "Rolling"
   health_probe_id = azurerm_lb_probe.haproxy_probe.id
 
@@ -61,6 +62,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "haproxy" {
   network_interface {
     name    = "nic"
     primary = true
+    enable_accelerated_networking = true
 
     network_security_group_id = azurerm_network_security_group.haproxy_nsg.id
 

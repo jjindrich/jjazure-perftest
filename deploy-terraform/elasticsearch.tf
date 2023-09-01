@@ -2,7 +2,8 @@ resource "azurerm_network_interface" "elastic_nic" {
   name                = "${var.elastic_name}-nic"
   location            = var.location
   resource_group_name = azurerm_resource_group.rsg-svc.name
-
+  enable_accelerated_networking = true
+  
   ip_configuration {
     name                          = "nic_configuration"
     subnet_id                     = azurerm_subnet.app-subnet.id
@@ -16,6 +17,7 @@ resource "azurerm_linux_virtual_machine" "elastic_vm" {
   resource_group_name   = azurerm_resource_group.rsg-svc.name
   network_interface_ids = [azurerm_network_interface.elastic_nic.id]
   size                  = var.elastic_sku_size
+  zone                  = var.vm_avzone
 
   os_disk {
     name                 = "${var.elastic_name}-os-disk"
@@ -47,6 +49,7 @@ resource "azurerm_managed_disk" "elastic_data" {
   storage_account_type = var.elastic_data_storage_account_type
   create_option        = "Empty"
   disk_size_gb         = var.elastic_data_disk_size
+  zone                 = var.vm_avzone
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "elastic_data_attach" {
